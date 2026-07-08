@@ -1,0 +1,56 @@
+dataset:
+  swarm1:
+    id: 1
+    config_path: "/home/inspur/ZhangPing/SWARM_WS/src/D2SLAM/config/tum"
+    bag: "/home/inspur/ZhangPing/d2slam_data/tum/tum_corr/tum_drone1.bag"
+
+  swarm2:
+    id: 2
+    config_path: "/home/inspur/ZhangPing/SWARM_WS/src/D2SLAM/config/tum"
+    bag: "/home/inspur/ZhangPing/d2slam_data/tum/tum_corr/tum_drone2.bag"
+
+  swarm3:
+    id: 3
+    config_path: "/home/inspur/ZhangPing/SWARM_WS/src/D2SLAM/config/tum"
+    bag: "/home/inspur/ZhangPing/d2slam_data/tum/tum_corr/tum_drone3.bag"
+
+output_path: "/home/inspur/ZhangPing/d2slam_output/swarm"
+workspace: ""
+d2slam_source: "/home/inspur/ZhangPing/SWARM_WS/src/D2SLAM"
+image_name: "hkustswarm/d2slam:x86"
+exclude_topics: []
+rate: 0.5
+t_start: 0
+duration: 1000
+start_latency: 15
+
+entry_point_script: |
+  #!/bin/bash
+  source /root/swarm_ws/devel/setup.bash
+
+  mkdir -p /root/output/$DRONE_ID
+
+  if [ "$DRONE_ID" = "1" ]; then
+    LAUNCH_FILE="tum1.launch"
+    CONFIG_FILE="/root/SwarmConfig/tum_multi1.yaml"
+    RVIZ_ENABLE="true"
+  elif [ "$DRONE_ID" = "2" ]; then
+    LAUNCH_FILE="tum2.launch"
+    CONFIG_FILE="/root/SwarmConfig/tum_multi2.yaml"
+    RVIZ_ENABLE="false"
+  elif [ "$DRONE_ID" = "3" ]; then
+    LAUNCH_FILE="tum3.launch"
+    CONFIG_FILE="/root/SwarmConfig/tum_multi3.yaml"
+    RVIZ_ENABLE="false"
+  else
+    echo "Unknown DRONE_ID=$DRONE_ID"
+    exit 1
+  fi
+
+  roslaunch d2vins $LAUNCH_FILE \
+    config:=$CONFIG_FILE \
+    enable_loop:=true \
+    enable_pgo:=false \
+    rviz:=$RVIZ_ENABLE \
+    show:=false \
+    output_path:=/root/output/$DRONE_ID
